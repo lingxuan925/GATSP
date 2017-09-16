@@ -1,17 +1,31 @@
-import java.util.Vector;
-
 public class Routes {
-  Vector<ARoute> routes;
+  private ARoute[] routes;
 
-  public Routes(int numOfRoutes, boolean isEmpty) {
-    routes = new Vector<ARoute>(numOfRoutes);
-    if (isEmpty) for (int i=0; i<numOfRoutes; i++) this.routes.add(new ARoute());
+  public Routes(int numOfRoutes) {
+    routes = new ARoute[numOfRoutes];
+  }
+
+  public Routes(int numOfRoutes, Cities cities) {
+    routes = new ARoute[numOfRoutes];
+    for (int i=0; i<numOfRoutes; i++) routes[i] = new ARoute(cities);
+  }
+
+  public int numRoutes() {
+    return routes.length;
+  }
+
+  public ARoute getRoute(int idx) {
+    return routes[idx];
+  }
+
+  public void setRoute(int idx, ARoute r) {
+    routes[idx] = r;
   }
 
   public ARoute getFittestRoute() {
-    ARoute mostFit = routes.get(0);
+    ARoute mostFit = routes[0];
 
-    for (int i=1; i<routes.size(); i++) if (routes.get(i).getFitLevel() > mostFit.getFitLevel()) mostFit = routes.get(i);
+    for (int i=1; i<routes.length; i++) if (routes[i].getFitLevel() > mostFit.getFitLevel()) mostFit = routes[i];
     return mostFit;
   }
 }

@@ -1,91 +1,99 @@
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.util.Random;
+import java.io.FileReader;
+import javax.swing.JFileChooser;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Scanner;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.BasicStroke;
-import java.util.Vector;
-import java.util.Collections;
-import javax.swing.Timer;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
-public class TSP extends JPanel implements ActionListener {
+public class TSP {
 
-  Vector<City> cities;
-  Vector< Vector<City> > routes;
-  int numOfCities, cluster_size, w, h;
-  Timer t = new Timer(200, this);
-  public static JFrame frame = new JFrame("TSP");
+  private JFileChooser jFC;
+  private FileReader fR;
+  private File f;
+  private BufferedReader bR;
+  private String line;
+  public static String EDGE_WEIGHT_TYPE;
 
-  public TSP(int numOfCities, int cluster_size, int w, int h) {
-    this.numOfCities = numOfCities;
-    this.cluster_size = cluster_size;
-    cities = new Vector<>(numOfCities);
-    routes = new Vector< Vector<City> >(cluster_size);
-    this.w = w;
-    this.h = h;
-    for (int i=0; i<numOfCities; i++) cities.add(new City(w, h));
-    for (int i=0; i<cluster_size; i++) {
-      Collections.shuffle(cities);
-      routes.add(cities);
+  public TSP() {
+    Scanner sc = new Scanner(System.in);
+
+    System.out.print("Enter population size: ");
+    while (!sc.hasNextInt()) {
+      System.out.print("Enter population size: ");
+      sc.next();
     }
+    int pop_size = sc.nextInt();
+
+    System.out.print("How many generations: ");
+    while (!sc.hasNextInt()) {
+      System.out.print("How many generations: ");
+      sc.next();
+    }
+    int gen_size = sc.nextInt();
+
+    Cities cities = null;
+    cities = readFileAndInit(cities);
+
+    Routes routes = new Routes(pop_size, cities);
+    System.out.println(routes.getFittestRoute().getTotalRouteDist());
+
+    for (int i=0; i<gen_size; i++) {
+      routes = GeneticAlgo.evolve(routes, cities);
+    }
+    System.out.println(routes.getFittestRoute().getTotalRouteDist());
+
+    JFrame jF = new JFrame("TSP using GA");
+    jF.getContentPane().add(new MasterFrame(routes.getFittestRoute()));
+    jF.setSize(1000, 700);
+    jF.setVisible(true);
+    jF.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
   }
 
-  public void drawPaths(Graphics2D g2d) {
-    for (int i=0; i<cities.size(); i++) {
-      g2d.fillOval(cities.get(i).getXCoor(),cities.get(i).getYCoor(), 1, 1);
-    }
+  private Cities readFileAndInit(Cities cities) {
+    System.out.println("here");
+    //jFC = new JFileChooser();
+    try {
+      //jFC.showOpenDialog(null);
+      //f = jFC.getSelectedFile();
+      f = new File("/Users/lingxuan925/Desktop/berlin52.tsp");
+      //System.out.println("You chose to open this file: " + f.getName());
 
-    for (int i=0; i<cities.size(); i++) {
-      if (i+1 < cities.size()) {
-        g2d.drawLine(cities.get(i).getXCoor(),cities.get(i).getYCoor(),cities.get(i+1).getXCoor(),cities.get(i+1).getYCoor());
+      fR = new FileReader(f);
+      bR = new BufferedReader(fR);
+
+      Boolean isCoord = false;
+      while (!(line = bR.readLine()).equals("EOF")) {
+        if (line.contains("DIMENSION")) {
+          cities = new Cities(new Integer(line.split(" ")[1]));
+          System.out.println(cities.getSize());
+        }
+        else if (line.contains("EDGE_WEIGHT_TYPE")) {
+          EDGE_WEIGHT_TYPE = line.split(" ")[1];
+          System.out.println(EDGE_WEIGHT_TYPE);
+        }
+        else if (line.contains("NODE_COORD_SECTION")){
+          isCoord = true;
+          continue;
+        }
+
+        if (isCoord) {
+          City newCity = new City(new Integer(line.split(" ")[0]).intValue(), new Double(line.split(" ")[1]).doubleValue(), new Double(line.split(" ")[2]).doubleValue());
+          cities.addCity(newCity);
+        }
       }
-      else {
-        g2d.drawLine(cities.get(i).getXCoor(),cities.get(i).getYCoor(),cities.get(0).getXCoor(),cities.get(0).getYCoor());
-      }
+
+      bR.close();
+    } catch(FileNotFoundException ex) {
+      System.out.println("Unable to open file '" + f.getName() + "'");
+    } catch(IOException ex) {
+      ex.printStackTrace();
     }
-  }
-
-  public Vector<City> getFittestRoute() {
-    Vector<City> fittest = routes.get(0);
-    int fitness = 0;
-    for (int i=0; i<cluster_size; i++) {
-      int totalDist = 0;
-      for (int j=0; j<numOfCities; j++) {
-        if (j+1 < numOfCities) totalDist += routes.get(i).get(j).getDistTo(routes.get(i).get(j+1));
-        else totalDist += routes.get(i).get(j).getDistTo(routes.get(i).get(0));
-      }
-      if ((1/(double)totalDist) >= fitness) fittest = routes.get(i);
-    }
-    return fittest;
-  }
-
-  public void paintComponent(Graphics g) {
-    super.paintComponent(g);
-    Graphics2D g2d = (Graphics2D) g;
-
-    g2d.setColor(Color.red);
-    g2d.setStroke(new BasicStroke(1));
-
-    drawPaths(g2d);
-    t.start();
-  }
-
-  public void actionPerformed(ActionEvent e) {
-    Collections.shuffle(cities);
-    repaint();
+    return cities;
   }
 
   public static void main(String[] args) {
-    int w=1000, h=700;
-    TSP tsp = new TSP(5, 5, w, h);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(w, h);
-    frame.add(tsp);
-    frame.setLocationRelativeTo(null);
-    frame.setVisible(true);
+    new TSP();
   }
 }
