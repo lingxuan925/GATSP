@@ -2,8 +2,8 @@ import java.util.Vector;
 import java.util.Collections;
 
 public class ARoute {
-  private int dist = 0;
-  private double fitLevel = 0;
+  // private int dist = 0;
+  // private double fitLevel = 0;
   private Vector<City> aRoute = new Vector<City>();
 //create a new contructor for new offspring
   public ARoute(int size) {
@@ -17,32 +17,28 @@ public class ARoute {
 
   public int getTotalRouteDist() {
     int totalDist = 0;
-    if (dist == 0) {
-      for (int i=0; i<aRoute.size(); i++) {
-        if (i+1 < aRoute.size()) totalDist += aRoute.get(i).getDist_UsingEUC(aRoute.get(i+1));
-        else totalDist += aRoute.get(i).getDist_UsingEUC(aRoute.get(0));
-      }
-      dist = totalDist;
+    for (int i=0; i<aRoute.size(); i++) {
+      if (i+1 < aRoute.size()) totalDist += aRoute.get(i).getDist_UsingEUC(aRoute.get(i+1));
+      else totalDist += aRoute.get(i).getDist_UsingEUC(aRoute.get(0));
     }
-    return dist;
+    return totalDist;
   }
 
   public boolean containsC(City c) {
     return aRoute.contains(c);
   }
 
-  public void setDist(int d) {
-    dist = d;
-  }
+  // public void setDist(int d) {
+  //   dist = d;
+  // }
 
   public double getFitLevel() {
-    if (fitLevel == 0) return 1/(double)getTotalRouteDist();
-    return fitLevel;
+    return 1.0/(double)getTotalRouteDist();
   }
 
-  public void setFitLevel(double level) {
-    fitLevel = level;
-  }
+  // public void setFitLevel(double level) {
+  //   fitLevel = level;
+  // }
 
   public int getRouteSize() {
     return aRoute.size();

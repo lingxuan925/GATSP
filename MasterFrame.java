@@ -10,7 +10,7 @@ import java.awt.event.ActionEvent;
 
 public class MasterFrame extends JPanel {
 
-  // Timer t = new Timer(200, this);
+  //Timer t = new Timer(2, this);
   private ARoute r;
 
   public MasterFrame(ARoute ar) {
@@ -23,21 +23,17 @@ public class MasterFrame extends JPanel {
       g2d.drawString(String.valueOf(r.getC(i).getNodeNum()), (int)r.getC(i).getXCoor()/2, (int)r.getC(i).getYCoor()/2);
     }
 
-    // for (int i=0; i<r.getRouteSize(); i++) {
-    //   if (i+1 < r.getRouteSize()) {
-    //     g2d.drawLine((int)r.getC(i).getXCoor(),(int)r.getC(i).getYCoor(),(int)r.getC(i+1).getXCoor(),(int)r.getC(i+1).getYCoor());
-    //   }
-    //   else {
-    //     g2d.drawLine((int)r.getC(i).getXCoor(),(int)r.getC(i).getYCoor(),(int)r.getC(0).getXCoor(),(int)r.getC(0).getYCoor());
-    //   }
-    // }
+    for (int i=0; i<r.getRouteSize(); i++) {
+      if (i+1 < r.getRouteSize()) g2d.drawLine((int)r.getC(i).getXCoor()/2,(int)r.getC(i).getYCoor()/2,(int)r.getC(i+1).getXCoor()/2,(int)r.getC(i+1).getYCoor()/2);
+      else g2d.drawLine((int)r.getC(i).getXCoor()/2,(int)r.getC(i).getYCoor()/2,(int)r.getC(0).getXCoor()/2,(int)r.getC(0).getYCoor()/2);
+    }
   }
 
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
     Graphics2D g2d = (Graphics2D) g;
 
-    g2d.setColor(Color.red);
+    g2d.setColor(Color.blue);
     g2d.setStroke(new BasicStroke(2));
 
     drawPaths(g2d);

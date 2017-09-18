@@ -39,11 +39,9 @@ public class TSP {
     Routes routes = new Routes(pop_size, cities);
     System.out.println(routes.getFittestRoute().getTotalRouteDist());
 
-    for (int i=0; i<gen_size; i++) {
-      routes = GeneticAlgo.evolve(routes, cities);
-    }
-    System.out.println(routes.getFittestRoute().getTotalRouteDist());
+    for (int i=0; i<gen_size; i++) routes = GeneticAlgo.evolve(routes, cities);
 
+    System.out.println(routes.getFittestRoute().getTotalRouteDist());
     JFrame jF = new JFrame("TSP using GA");
     jF.getContentPane().add(new MasterFrame(routes.getFittestRoute()));
     jF.setSize(1000, 700);
@@ -52,7 +50,6 @@ public class TSP {
   }
 
   private Cities readFileAndInit(Cities cities) {
-    System.out.println("here");
     //jFC = new JFileChooser();
     try {
       //jFC.showOpenDialog(null);
