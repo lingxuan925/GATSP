@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class Routes {
   private ARoute[] routes;
 
@@ -5,9 +7,9 @@ public class Routes {
     routes = new ARoute[numOfRoutes];
   }
 
-  public Routes(int numOfRoutes, Cities cities) {
+  public Routes(int numOfRoutes, Cities cities, Random randomno) {
     routes = new ARoute[numOfRoutes];
-    for (int i=0; i<numOfRoutes; i++) routes[i] = new ARoute(cities);
+    for (int i=0; i<numOfRoutes; i++) routes[i] = new ARoute(cities, randomno);
   }
 
   public int numRoutes() {

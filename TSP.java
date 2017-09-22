@@ -5,7 +5,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
-import javax.swing.JFrame;
+import java.lang.Thread;
+import java.awt.Color;
+import java.util.Random;
 
 public class TSP {
 
@@ -15,9 +17,21 @@ public class TSP {
   private BufferedReader bR;
   private String line;
   public static String EDGE_WEIGHT_TYPE;
+  private Random randomno;
 
   public TSP() {
+    Cities cities = null;
+    cities = readFileAndInit(cities);
+
     Scanner sc = new Scanner(System.in);
+
+    System.out.print("Enter seed: ");
+    while (!sc.hasNextInt()) {
+      System.out.print("Enter seed: ");
+      sc.next();
+    }
+    int seed = sc.nextInt();
+    randomno = new Random(seed);
 
     System.out.print("Enter population size: ");
     while (!sc.hasNextInt()) {
@@ -26,6 +40,16 @@ public class TSP {
     }
     int pop_size = sc.nextInt();
 
+    Routes routes = new Routes(pop_size, cities, randomno);
+    MasterFrame mF = new MasterFrame();
+
+    mF.updatePanel(routes.getFittestRoute());
+    try{
+      Thread.sleep(1000);
+    }catch(InterruptedException ex){
+      ex.printStackTrace();
+    }
+
     System.out.print("How many generations: ");
     while (!sc.hasNextInt()) {
       System.out.print("How many generations: ");
@@ -33,20 +57,41 @@ public class TSP {
     }
     int gen_size = sc.nextInt();
 
-    Cities cities = null;
-    cities = readFileAndInit(cities);
+    System.out.print("Input mutation rate (0.0 - 1.0): ");
+    while (!sc.hasNextDouble()) {
+      System.out.print("Input mutation rate (0.0 - 1.0): ");
+      sc.next();
+    }
+    double mutate_rate = sc.nextDouble();
 
-    Routes routes = new Routes(pop_size, cities);
-    System.out.println(routes.getFittestRoute().getTotalRouteDist());
+    System.out.print("Input crossover rate (0.0 - 1.0): ");
+    while (!sc.hasNextDouble()) {
+      System.out.print("Input crossover rate (0.0 - 1.0): ");
+      sc.next();
+    }
+    double crossover_rate = sc.nextDouble();
 
-    for (int i=0; i<gen_size; i++) routes = GeneticAlgo.evolve(routes, cities);
+    System.out.print("Input tournament rate (0.0 - 1.0): ");
+    while (!sc.hasNextDouble()) {
+      System.out.print("Input tournament rate (0.0 - 1.0): ");
+      sc.next();
+    }
+    double tournament_rate = sc.nextDouble();
 
-    System.out.println(routes.getFittestRoute().getTotalRouteDist());
-    JFrame jF = new JFrame("TSP using GA");
-    jF.getContentPane().add(new MasterFrame(routes.getFittestRoute()));
-    jF.setSize(1000, 700);
-    jF.setVisible(true);
-    jF.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    System.out.println("Initial route distance: "+routes.getFittestRoute().getTotalRouteDist());
+
+    for (int i=0; i<gen_size; i++) {
+      routes = GeneticAlgo.evolve(routes, cities, mutate_rate, crossover_rate, tournament_rate, randomno);
+      try{
+        Thread.sleep(50);
+      }catch(InterruptedException ex){
+        ex.printStackTrace();
+      }
+      mF.updatePanel(routes.getFittestRoute());
+      //routes = GeneticAlgo.evolve(routes, cities);
+    }
+
+    System.out.println("Final route distance after "+gen_size+" : "+routes.getFittestRoute().getTotalRouteDist());
   }
 
   private Cities readFileAndInit(Cities cities) {

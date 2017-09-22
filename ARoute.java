@@ -1,5 +1,6 @@
 import java.util.Vector;
 import java.util.Collections;
+import java.util.Random;
 
 public class ARoute {
   // private int dist = 0;
@@ -10,9 +11,9 @@ public class ARoute {
     for (int i=0; i<size; i++) aRoute.add(null);
   }
 
-  public ARoute(Cities cities) {
+  public ARoute(Cities cities, Random randomno) {
     for (int i=0; i<cities.getSize(); i++) aRoute.add(cities.getCity(i));
-    Collections.shuffle(aRoute);
+    Collections.shuffle(aRoute, randomno);
   }
 
   public int getTotalRouteDist() {
@@ -28,17 +29,9 @@ public class ARoute {
     return aRoute.contains(c);
   }
 
-  // public void setDist(int d) {
-  //   dist = d;
-  // }
-
   public double getFitLevel() {
     return 1.0/(double)getTotalRouteDist();
   }
-
-  // public void setFitLevel(double level) {
-  //   fitLevel = level;
-  // }
 
   public int getRouteSize() {
     return aRoute.size();
